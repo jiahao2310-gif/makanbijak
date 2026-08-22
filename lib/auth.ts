@@ -25,20 +25,6 @@ export async function signUp({
     },
   });
   if (error) throw error;
-
-  if (data.user) {
-    await getSupabase()
-      .from("profiles")
-      .insert([
-        {
-          id: data.user.id,
-          username: username.trim().toLowerCase(),
-          full_name: fullName || null,
-        },
-      ])
-      .select();
-  }
-
   return data;
 }
 
