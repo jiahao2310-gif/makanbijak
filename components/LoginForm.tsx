@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { signIn, signUp } from "@/lib/auth";
+import { signIn } from "@/lib/auth";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -25,8 +25,15 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     setMessage("");
     try {
       if (mode === "register") {
-        await signUp({ username, password, fullName });
-        setMessage("Account created. You are now logged in.");
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password, fullName }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Registration failed");
+        setMessage("Account created. Logging you in…");
+        await signIn({ username, password });
       } else {
         await signIn({ username, password });
       }

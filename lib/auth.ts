@@ -7,27 +7,6 @@ function usernameToEmail(username: string) {
   return `${username.trim().toLowerCase()}@${DOMAIN}`;
 }
 
-export async function signUp({
-  username,
-  password,
-  fullName,
-}: {
-  username: string;
-  password: string;
-  fullName?: string;
-}) {
-  const email = usernameToEmail(username);
-  const { data, error } = await getSupabase().auth.signUp({
-    email,
-    password,
-    options: {
-      data: { username, full_name: fullName },
-    },
-  });
-  if (error) throw error;
-  return data;
-}
-
 export async function signIn({
   username,
   password,
