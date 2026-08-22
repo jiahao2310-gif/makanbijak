@@ -1,7 +1,7 @@
 import { Session } from "@supabase/supabase-js";
 import { getSupabase } from "./supabase";
 
-const DOMAIN = "local.makanbijak";
+const DOMAIN = "makanbijak.app";
 
 function usernameToEmail(username: string) {
   return `${username.trim().toLowerCase()}@${DOMAIN}`;
