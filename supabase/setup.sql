@@ -36,17 +36,19 @@ create table if not exists public.scan_history (
 
 -- 4. Enable RLS on all tables
 
-alter table public.profiles enable row level security;
-alter table public.health_profiles enable row level security;
-alter table public.scan_history enable row level security;
+alter table if exists public.profiles enable row level security;
+alter table if exists public.health_profiles enable row level security;
+alter table if exists public.scan_history enable row level security;
 
 -- 5. RLS policies for profiles
 
+drop policy if exists "Users can read own profile" on public.profiles;
 create policy "Users can read own profile"
   on public.profiles for select
   to authenticated
   using (auth.uid() = id);
 
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles for update
   to authenticated
@@ -55,16 +57,19 @@ create policy "Users can update own profile"
 
 -- 6. RLS policies for health_profiles
 
+drop policy if exists "Users can read own health profile" on public.health_profiles;
 create policy "Users can read own health profile"
   on public.health_profiles for select
   to authenticated
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert own health profile" on public.health_profiles;
 create policy "Users can insert own health profile"
   on public.health_profiles for insert
   to authenticated
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update own health profile" on public.health_profiles;
 create policy "Users can update own health profile"
   on public.health_profiles for update
   to authenticated
@@ -73,16 +78,19 @@ create policy "Users can update own health profile"
 
 -- 7. RLS policies for scan_history
 
+drop policy if exists "Users can read own scan history" on public.scan_history;
 create policy "Users can read own scan history"
   on public.scan_history for select
   to authenticated
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert own scan history" on public.scan_history;
 create policy "Users can insert own scan history"
   on public.scan_history for insert
   to authenticated
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can delete own scan history" on public.scan_history;
 create policy "Users can delete own scan history"
   on public.scan_history for delete
   to authenticated
