@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { FoodItem } from "@/lib/types";
+import { getSupabase } from "@/lib/supabase";
 import { CameraCapture } from "@/components/CameraCapture";
 import { NutritionCard } from "@/components/NutritionCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,13 +23,11 @@ interface ScanResult {
 
 interface ScanHistoryItem extends ScanResult {
   id: string;
-  timestamp: number;
+  created_at: string;
 }
 
-const STORAGE_KEY = "makanbijak_scan_history";
-
-function formatDate(ts: number) {
-  const d = new Date(ts);
+function formatDate(value: string | number) {
+  const d = new Date(value);
   return d.toLocaleString("en-MY", {
     day: "numeric",
     month: "short",
@@ -45,18 +44,30 @@ export default function ScanPage() {
   const [history, setHistory] = useState<ScanHistoryItem[]>([]);
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
-  useEffect(() => {
+  const loadHistory = async () => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setHistory(JSON.parse(raw));
-    } catch {}
-  }, []);
+      const {
+        data: { session },
+      } = await getSupabase().auth.getSession();
+      if (!session?.user) return;
+
+      const { data, error } = await getSupabase()
+        .from("scan_history")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setHistory((data as ScanHistoryItem[]) || []);
+    } catch {
+      setHistory([]);
+    }
+  };
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-    } catch {}
-  }, [history]);
+    loadHistory();
+  }, []);
 
   const toggleExpanded = (id: string) => {
     setExpandedIds((prev) =>
@@ -75,14 +86,36 @@ export default function ScanPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Scan failed");
-      const item: ScanHistoryItem = {
-        ...data,
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        timestamp: Date.now(),
-      };
-      setResult(data);
-      setHistory((prev) => [item, ...prev].slice(0, 20));
-      setExpandedIds((prev) => [item.id, ...prev]);
+
+      const {
+        data: { session },
+      } = await getSupabase().auth.getSession();
+
+      if (session?.user) {
+        const { data: rows, error: insertError } = await getSupabase()
+          .from("scan_history")
+          .insert([
+            {
+              user_id: session.user.id,
+              food: data.food,
+              food_items: data.food_items || [],
+              advice: data.advice || {},
+              source: data.source,
+            },
+          ])
+          .select();
+
+        if (insertError) throw insertError;
+
+        const saved = rows?.[0] as ScanHistoryItem | undefined;
+        if (saved) {
+          setResult(data);
+          setHistory((prev) => [saved, ...prev].slice(0, 20));
+          setExpandedIds((prev) => [saved.id, ...prev]);
+        }
+      } else {
+        setResult(data);
+      }
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -180,7 +213,7 @@ export default function ScanPage() {
                         {item.food.name_en || item.food_items?.[0]?.name}
                       </CardTitle>
                       <p className="text-xs font-medium text-[#5c7a8c]">
-                        {formatDate(item.timestamp)}
+                        {formatDate(item.created_at)}
                       </p>
                     </div>
                     <Button
