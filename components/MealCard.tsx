@@ -8,17 +8,19 @@ interface MealCardProps {
 export function MealCard({ label, meal }: MealCardProps) {
   if (!meal) return null;
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
       <CardContent className="p-4">
-        <div className="mb-1 flex items-center justify-between">
-          <span className="text-xs font-semibold uppercase text-green-600">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="rounded-full bg-[#e8f8f5] px-2.5 py-1 text-xs font-bold uppercase text-[#1abc9c]">
             {label}
           </span>
-          <span className="text-sm font-semibold">{meal.calories} kcal</span>
+          <span className="rounded-full bg-[#fdecea] px-2.5 py-1 text-sm font-bold text-[#e74c3c]">
+            {meal.calories} kcal
+          </span>
         </div>
-        <p className="text-base font-medium">{meal.meal}</p>
+        <p className="text-base font-semibold text-[#1e3a4c]">{meal.meal}</p>
         {meal.swap_from && (
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-[#5c7a8c]">
             Swapped from: {meal.swap_from}
           </p>
         )}

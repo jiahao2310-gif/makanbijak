@@ -41,13 +41,13 @@ export function getBmiRisk(value: number | null): RiskLevel | null {
 export function riskColor(level: RiskLevel | null): string {
   switch (level) {
     case "normal":
-      return "text-green-600 bg-green-50";
+      return "text-[#1abc9c] bg-[#e8f8f5]";
     case "borderline":
-      return "text-amber-600 bg-amber-50";
+      return "text-[#d4a017] bg-[#fff9e6]";
     case "high":
-      return "text-red-600 bg-red-50";
+      return "text-[#e74c3c] bg-[#fdecea]";
     default:
-      return "text-gray-500 bg-gray-50";
+      return "text-[#5c7a8c] bg-[#f0fdfa]";
   }
 }
 

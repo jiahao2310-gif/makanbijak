@@ -35,9 +35,29 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", geistSans.variable)}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <main className="mx-auto min-h-screen max-w-md px-4 pb-28 pt-6">
+        <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-white/80 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-md items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e74c3c]">
+                <span className="text-sm font-bold text-white">M</span>
+              </div>
+              <div>
+                <h1 className="text-lg font-bold leading-none text-[#e74c3c]">
+                  MakanBijak
+                </h1>
+                <p className="text-[10px] font-medium text-[#1abc9c]">
+                  Smart Eating
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full bg-[#e8f8f5] px-2 py-1 text-xs font-medium text-[#1abc9c]">
+              Malaysia
+            </span>
+          </div>
+        </header>
+        <main className="mx-auto min-h-screen max-w-md px-4 pb-28 pt-4">
           {children}
         </main>
         <BottomNav />

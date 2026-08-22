@@ -29,14 +29,24 @@ export function NutritionCard({ food }: NutritionCardProps) {
     cholesterol_mg: "mg",
   };
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-lg">{food.name_en}</CardTitle>
-            <p className="text-sm text-gray-500">{food.serving_size}</p>
+            <CardTitle className="text-lg font-bold text-[#1e3a4c]">
+              {food.name_en}
+            </CardTitle>
+            <p className="text-sm font-medium text-[#5c7a8c]">
+              {food.serving_size}
+            </p>
           </div>
-          <Badge variant={food.source === "MyFCD" ? "default" : "outline"}>
+          <Badge
+            className={
+              food.source === "MyFCD"
+                ? "bg-[#1abc9c] text-white hover:bg-[#1abc9c]"
+                : "border-2 border-[#1abc9c] bg-white text-[#1abc9c]"
+            }
+          >
             {food.source}
           </Badge>
         </div>
@@ -46,11 +56,14 @@ export function NutritionCard({ food }: NutritionCardProps) {
           {rows.map((row) => (
             <div
               key={String(row.key)}
-              className="rounded-lg bg-gray-50 p-3 text-center"
+              className="rounded-xl bg-[#e8f8f5] p-3 text-center"
             >
-              <p className="text-xs text-gray-500">{row.label}</p>
-              <p className="text-lg font-semibold">
-                {food[row.key] as number} {units[row.key]}
+              <p className="text-xs font-medium text-[#5c7a8c]">{row.label}</p>
+              <p className="text-lg font-bold text-[#1e3a4c]">
+                {food[row.key] as number}{" "}
+                <span className="text-sm font-medium text-[#5c7a8c]">
+                  {units[row.key]}
+                </span>
               </p>
             </div>
           ))}

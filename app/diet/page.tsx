@@ -47,7 +47,6 @@ export default function DietPage() {
   if (!habits) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold text-green-700">My Diet</h1>
         <DietOnboarding onSave={handleGenerate} />
       </div>
     );
@@ -57,21 +56,30 @@ export default function DietPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-green-700">My Diet</h1>
-        <Button
-          onClick={() => handleGenerate(habits)}
-          disabled={generating}
-          className="bg-green-600 hover:bg-green-700"
-        >
-          {generating ? "Generating…" : "Regenerate"}
-        </Button>
+      <div className="rounded-2xl bg-gradient-to-br from-[#1abc9c] to-[#00bfa5] p-5 text-white shadow-md">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">My Diet</h1>
+            <p className="mt-1 text-sm opacity-90">Your weekly meal plan</p>
+          </div>
+          <Button
+            onClick={() => handleGenerate(habits)}
+            disabled={generating}
+            className="rounded-full bg-white text-[#1abc9c] shadow-md hover:bg-[#f0fdfa]"
+          >
+            {generating ? "Generating…" : "Regenerate"}
+          </Button>
+        </div>
       </div>
 
       <Tabs value={selectedDay} onValueChange={setSelectedDay}>
-        <TabsList className="w-full overflow-x-auto">
+        <TabsList className="w-full overflow-x-auto rounded-2xl bg-white p-1 shadow-sm">
           {days.map((d) => (
-            <TabsTrigger key={d} value={d} className="capitalize">
+            <TabsTrigger
+              key={d}
+              value={d}
+              className="rounded-xl px-3 py-2 text-sm capitalize data-[state=active]:bg-[#e74c3c] data-[state=active]:text-white"
+            >
               {d.slice(0, 3)}
             </TabsTrigger>
           ))}
@@ -84,22 +92,24 @@ export default function DietPage() {
           <MealCard label="Lunch" meal={dayPlan.lunch} />
           <MealCard label="Dinner" meal={dayPlan.dinner} />
           <MealCard label="Snacks" meal={dayPlan.snacks} />
-          <Card className="border-0 bg-green-50 shadow-sm">
+          <Card className="overflow-hidden rounded-2xl border-0 bg-[#e8f8f5] shadow-sm">
             <CardContent className="p-4">
-              <p className="text-sm font-semibold text-green-800">
+              <p className="text-sm font-bold text-[#1e3a4c]">
                 Daily total: {" "}
-                {dayPlan.breakfast.calories +
-                  dayPlan.lunch.calories +
-                  dayPlan.dinner.calories +
-                  dayPlan.snacks.calories}{" "}
+                <span className="text-[#e74c3c]">
+                  {dayPlan.breakfast.calories +
+                    dayPlan.lunch.calories +
+                    dayPlan.dinner.calories +
+                    dayPlan.snacks.calories}
+                </span>{" "}
                 kcal
               </p>
             </CardContent>
           </Card>
         </div>
       ) : (
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-6 text-center text-sm text-gray-500">
+        <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
+          <CardContent className="p-6 text-center text-sm text-[#5c7a8c]">
             No plan yet. Tap Regenerate to create your weekly plan.
           </CardContent>
         </Card>

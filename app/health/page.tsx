@@ -75,22 +75,29 @@ export default function HealthPage() {
   if (!loaded) return null;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-green-700">My Health</h1>
+    <div className="space-y-5">
+      <div className="rounded-2xl bg-gradient-to-br from-[#e74c3c] to-[#1e3a4c] p-5 text-white shadow-md">
+        <h1 className="text-2xl font-bold">My Health</h1>
+        <p className="mt-1 text-sm opacity-90">
+          Upload your report and review your markers.
+        </p>
+      </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Upload Health Report</CardTitle>
+          <CardTitle className="text-base font-bold text-[#1e3a4c]">
+            Upload Health Report
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <input
             type="file"
             accept="image/*,.pdf"
             onChange={handleFile}
-            className="block w-full text-sm"
+            className="block w-full rounded-xl border border-[var(--border)] p-3 text-sm file:rounded-full file:border-0 file:bg-[#e74c3c] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
           />
           {extracting && (
-            <p className="mt-2 text-sm text-gray-500">Extracting…</p>
+            <p className="mt-2 text-sm font-medium text-[#1abc9c]">Extracting…</p>
           )}
         </CardContent>
       </Card>
@@ -135,14 +142,18 @@ export default function HealthPage() {
         />
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Edit Markers</CardTitle>
+          <CardTitle className="text-base font-bold text-[#1e3a4c]">
+            Edit Markers
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {fields.map((f) => (
             <div key={f.key}>
-              <Label htmlFor={f.key}>{f.label}</Label>
+              <Label htmlFor={f.key} className="text-[#1abc9c]">
+                {f.label}
+              </Label>
               <Input
                 id={f.key}
                 type="number"
@@ -153,19 +164,26 @@ export default function HealthPage() {
                 }
                 onChange={(e) => updateField(f.key, e.target.value)}
                 placeholder={f.unit}
+                className="mt-1 rounded-xl border-[var(--border)] bg-white"
               />
             </div>
           ))}
           <div>
-            <Label htmlFor="conditions">Conditions (comma-separated)</Label>
+            <Label htmlFor="conditions" className="text-[#1abc9c]">
+              Conditions (comma-separated)
+            </Label>
             <Input
               id="conditions"
               value={active.conditions.join(", ")}
               onChange={(e) => updateField("conditions", e.target.value)}
               placeholder="e.g. pre-diabetic, high cholesterol"
+              className="mt-1 rounded-xl border-[var(--border)] bg-white"
             />
           </div>
-          <Button onClick={onSave} className="w-full bg-green-600 hover:bg-green-700">
+          <Button
+            onClick={onSave}
+            className="w-full rounded-full bg-[#e74c3c] text-white shadow-md hover:bg-[#c0392b]"
+          >
             Save Health Profile
           </Button>
         </CardContent>

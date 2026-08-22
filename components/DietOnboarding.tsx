@@ -68,44 +68,60 @@ export function DietOnboarding({ initial, onSave }: Props) {
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   return (
-    <div className="space-y-4">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-green-700">{steps[step].title}</h2>
-        <p className="text-sm text-gray-500">{steps[step].description}</p>
+    <div className="space-y-5 rounded-2xl bg-white p-5 shadow-sm">
+      <div className="mb-2 flex items-center gap-2">
+        {steps.map((_, i) => (
+          <div
+            key={i}
+            className={`h-2 flex-1 rounded-full ${
+              i <= step ? "bg-[#1abc9c]" : "bg-[#e0f2ef]"
+            }`}
+          />
+        ))}
+      </div>
+      <div>
+        <h2 className="text-xl font-bold text-[#1e3a4c]">
+          {steps[step].title}
+        </h2>
+        <p className="text-sm text-[#5c7a8c]">{steps[step].description}</p>
       </div>
 
       {step === 0 && (
         <div className="space-y-4">
           <div>
-            <Label>Typical breakfast</Label>
+            <Label className="text-[#1abc9c]">Typical breakfast</Label>
             <Textarea
               value={h.breakfast}
               onChange={(e) => update("breakfast", e.target.value)}
               placeholder="e.g. nasi lemak from stall"
+              className="mt-1 rounded-xl border-[var(--border)]"
             />
           </div>
           <div>
-            <Label>Typical lunch</Label>
+            <Label className="text-[#1abc9c]">Typical lunch</Label>
             <Textarea
               value={h.lunch}
               onChange={(e) => update("lunch", e.target.value)}
               placeholder="e.g. nasi campur at food court"
+              className="mt-1 rounded-xl border-[var(--border)]"
             />
           </div>
           <div>
-            <Label>Typical dinner</Label>
+            <Label className="text-[#1abc9c]">Typical dinner</Label>
             <Textarea
               value={h.dinner}
               onChange={(e) => update("dinner", e.target.value)}
               placeholder="e.g. mamak 3x/week, home cook 2x"
+              className="mt-1 rounded-xl border-[var(--border)]"
             />
           </div>
           <div>
-            <Label>Snacks / drinks</Label>
+            <Label className="text-[#1abc9c]">Snacks / drinks</Label>
             <Textarea
               value={h.snacks}
               onChange={(e) => update("snacks", e.target.value)}
               placeholder="e.g. teh tarik every day"
+              className="mt-1 rounded-xl border-[var(--border)]"
             />
           </div>
         </div>
@@ -114,9 +130,9 @@ export function DietOnboarding({ initial, onSave }: Props) {
       {step === 1 && (
         <div className="space-y-4">
           <div>
-            <Label>Budget per meal</Label>
+            <Label className="text-[#1abc9c]">Budget per meal</Label>
             <Select value={h.budget} onValueChange={(v) => update("budget", v || "")}>
-              <SelectTrigger>
+              <SelectTrigger className="mt-1 rounded-xl border-[var(--border)]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -129,13 +145,17 @@ export function DietOnboarding({ initial, onSave }: Props) {
             </Select>
           </div>
           <div>
-            <Label>Dietary restrictions</Label>
+            <Label className="text-[#1abc9c]">Dietary restrictions</Label>
             <div className="mt-2 grid grid-cols-2 gap-2">
               {restrictionOptions.map((r) => (
-                <label key={r} className="flex items-center gap-2 text-sm">
+                <label
+                  key={r}
+                  className="flex items-center gap-2 rounded-xl border border-[var(--border)] p-2 text-sm text-[#1e3a4c]"
+                >
                   <Checkbox
                     checked={h.restrictions.includes(r)}
                     onCheckedChange={() => toggle("restrictions", r)}
+                    className="border-[#1abc9c] text-[#1abc9c]"
                   />
                   {r}
                 </label>
@@ -143,7 +163,7 @@ export function DietOnboarding({ initial, onSave }: Props) {
             </div>
           </div>
           <div>
-            <Label>Eating out (days/week)</Label>
+            <Label className="text-[#1abc9c]">Eating out (days/week)</Label>
             <Input
               type="range"
               min={0}
@@ -152,8 +172,11 @@ export function DietOnboarding({ initial, onSave }: Props) {
               onChange={(e) =>
                 update("eating_out_days", parseInt(e.target.value))
               }
+              className="mt-1"
             />
-            <p className="text-sm text-gray-500">{h.eating_out_days} days</p>
+            <p className="text-sm font-bold text-[#e74c3c]">
+              {h.eating_out_days} days
+            </p>
           </div>
         </div>
       )}
@@ -161,9 +184,9 @@ export function DietOnboarding({ initial, onSave }: Props) {
       {step === 2 && (
         <div className="space-y-4">
           <div>
-            <Label>Activity level</Label>
+            <Label className="text-[#1abc9c]">Activity level</Label>
             <Select value={h.activity} onValueChange={(v) => update("activity", v || "sedentary")}>
-              <SelectTrigger>
+              <SelectTrigger className="mt-1 rounded-xl border-[var(--border)]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -175,13 +198,17 @@ export function DietOnboarding({ initial, onSave }: Props) {
             </Select>
           </div>
           <div>
-            <Label>Health goals</Label>
+            <Label className="text-[#1abc9c]">Health goals</Label>
             <div className="mt-2 grid grid-cols-2 gap-2">
               {goalOptions.map((g) => (
-                <label key={g} className="flex items-center gap-2 text-sm">
+                <label
+                  key={g}
+                  className="flex items-center gap-2 rounded-xl border border-[var(--border)] p-2 text-sm text-[#1e3a4c]"
+                >
                   <Checkbox
                     checked={h.goals.includes(g)}
                     onCheckedChange={() => toggle("goals", g)}
+                    className="border-[#1abc9c] text-[#1abc9c]"
                   />
                   {g}
                 </label>
@@ -190,17 +217,18 @@ export function DietOnboarding({ initial, onSave }: Props) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Age</Label>
+              <Label className="text-[#1abc9c]">Age</Label>
               <Input
                 type="number"
                 value={h.age || ""}
                 onChange={(e) => update("age", parseInt(e.target.value) || 35)}
+                className="mt-1 rounded-xl border-[var(--border)]"
               />
             </div>
             <div>
-              <Label>Gender</Label>
+              <Label className="text-[#1abc9c]">Gender</Label>
               <Select value={h.gender} onValueChange={(v) => update("gender", (v as "male" | "female") || "male")}>
-                <SelectTrigger>
+                <SelectTrigger className="mt-1 rounded-xl border-[var(--border)]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -215,16 +243,26 @@ export function DietOnboarding({ initial, onSave }: Props) {
 
       <div className="flex gap-3 pt-4">
         {step > 0 && (
-          <Button variant="outline" onClick={prev} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={prev}
+            className="flex-1 rounded-full border-[#1abc9c] text-[#1abc9c] hover:bg-[#e8f8f5]"
+          >
             Back
           </Button>
         )}
         {step < steps.length - 1 ? (
-          <Button onClick={next} className="flex-1 bg-green-600 hover:bg-green-700">
+          <Button
+            onClick={next}
+            className="flex-1 rounded-full bg-[#e74c3c] text-white shadow-md hover:bg-[#c0392b]"
+          >
             Next
           </Button>
         ) : (
-          <Button onClick={() => onSave(h)} className="flex-1 bg-green-600 hover:bg-green-700">
+          <Button
+            onClick={() => onSave(h)}
+            className="flex-1 rounded-full bg-[#e74c3c] text-white shadow-md hover:bg-[#c0392b]"
+          >
             Save & Generate Plan
           </Button>
         )}

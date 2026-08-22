@@ -42,7 +42,7 @@ export function CameraCapture({ onCapture, children }: CameraCaptureProps) {
           type="button"
           size="lg"
           onClick={() => inputRef.current?.click()}
-          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+          className="flex-1 rounded-full bg-[#e74c3c] text-white shadow-md hover:bg-[#c0392b]"
         >
           <Camera className="mr-2 h-5 w-5" />
           Camera
@@ -58,18 +58,20 @@ export function CameraCapture({ onCapture, children }: CameraCaptureProps) {
               el.click();
             }
           }}
-          className="flex-1"
+          className="flex-1 rounded-full border-2 border-[#1abc9c] text-[#1abc9c] hover:bg-[#e8f8f5]"
         >
           <Upload className="mr-2 h-5 w-5" />
           Gallery
         </Button>
       </div>
       {preview && (
-        <img
-          src={preview}
-          alt="Preview"
-          className="w-full max-h-64 rounded-lg object-cover"
-        />
+        <div className="overflow-hidden rounded-2xl border-2 border-[#1abc9c] shadow-sm">
+          <img
+            src={preview}
+            alt="Preview"
+            className="w-full max-h-64 object-cover"
+          />
+        </div>
       )}
     </div>
   );
