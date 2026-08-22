@@ -27,7 +27,7 @@ Restrictions: ${habits.restrictions.join(", ")}
 Goals: ${habits.goals.join(", ")}
 Rules: suggest realistic Malaysian foods, work with current habits, use real names (nasi, mee, roti), include modifications like kurang nasi, tanpa kulit, sup instead of goreng, max 2-3 swaps, calculate daily calories. Respond with JSON: { "weeklyPlan": { "monday": { "breakfast": { "meal", "calories", "swap_from" }, ... } }, "dailyAverage": { "calories", "target" }, "weeklyCalorieSaved": number, "projectedWeightChange": string }.`;
 
-    const res = await generateText(prompt, "gemini-1.5-pro");
+    const res = await generateText(prompt);
     const plan = extractJson(res);
     const weeklyPlan = (plan.weeklyPlan || {}) as WeeklyPlan;
     const days = [

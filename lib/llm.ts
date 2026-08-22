@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(
 
 export async function generateText(
   prompt: string,
-  modelName = "gemini-1.5-flash"
+  modelName = "gemini-3.6-flash"
 ): Promise<string> {
   const model = genAI.getGenerativeModel({ model: modelName });
   const result = await model.generateContent(prompt);
@@ -17,7 +17,7 @@ export async function generateWithImage(
   prompt: string,
   base64Image: string,
   mimeType = "image/jpeg",
-  modelName = "gemini-1.5-flash"
+  modelName = "gemini-3.6-flash"
 ): Promise<string> {
   const model = genAI.getGenerativeModel({ model: modelName });
   const result = await model.generateContent([
