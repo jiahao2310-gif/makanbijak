@@ -72,28 +72,27 @@ export function useHealthProfile() {
 
   const saveProfile = async (p: HealthProfile) => {
     p.last_updated = new Date().toISOString();
-    setProfile(p);
 
-    try {
-      const {
-        data: { session },
-      } = await getSupabase().auth.getSession();
+    const {
+      data: { session },
+    } = await getSupabase().auth.getSession();
 
-      if (session?.user) {
-        await getSupabase().from("health_profiles").upsert(
-          {
-            user_id: session.user.id,
-            data: p,
-          },
-          { onConflict: "user_id" }
-        );
-        return;
-      }
-    } catch {
-      // fall through to localStorage
+    if (session?.user) {
+      const { error } = await getSupabase().from("health_profiles").upsert(
+        {
+          user_id: session.user.id,
+          data: p,
+        },
+        { onConflict: "user_id" }
+      );
+
+      if (error) throw new Error(error.message);
+      setProfile(p);
+      return;
     }
 
     localStorage.setItem(LOCAL_KEY, JSON.stringify(p));
+    setProfile(p);
   };
 
   return { profile, loaded, saveProfile };

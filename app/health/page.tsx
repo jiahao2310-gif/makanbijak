@@ -33,6 +33,9 @@ const fields = [
 export default function HealthPage() {
   const { profile, loaded, saveProfile } = useHealthProfile();
   const [draft, setDraft] = useState<HealthProfile | null>(null);
+  const [showEditor, setShowEditor] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
   const [extracting, setExtracting] = useState(false);
 
   const active = draft || profile || emptyProfile;
@@ -51,6 +54,7 @@ export default function HealthPage() {
       });
       const data = await res.json();
       setDraft(data.extracted_markers || { ...emptyProfile });
+      setShowEditor(true);
       setExtracting(false);
     };
     reader.readAsDataURL(file);
@@ -67,9 +71,20 @@ export default function HealthPage() {
     });
   };
 
-  const onSave = () => {
-    if (draft) saveProfile(draft);
-    else if (profile) saveProfile(profile);
+  const onSave = async () => {
+    setSaving(true);
+    setMessage("");
+    try {
+      const target = draft || profile || emptyProfile;
+      await saveProfile(target);
+      setDraft(null);
+      setShowEditor(false);
+      setMessage("Health profile saved.");
+    } catch (err) {
+      setMessage((err as Error).message || "Failed to save.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!loaded) return null;
@@ -142,52 +157,89 @@ export default function HealthPage() {
         />
       </div>
 
-      <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-bold text-[#1e3a4c]">
-            Edit Markers
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {fields.map((f) => (
-            <div key={f.key}>
-              <Label htmlFor={f.key} className="text-[#1abc9c]">
-                {f.label}
+      {!showEditor ? (
+        <Button
+          onClick={() => setShowEditor(true)}
+          variant="outline"
+          className="w-full rounded-full border-[#1abc9c] text-[#1abc9c] hover:bg-[#e8f8f5]"
+        >
+          Manually edit information
+        </Button>
+      ) : (
+        <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-bold text-[#1e3a4c]">
+              Edit Markers
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {fields.map((f) => (
+              <div key={f.key}>
+                <Label htmlFor={f.key} className="text-[#1abc9c]">
+                  {f.label}
+                </Label>
+                <Input
+                  id={f.key}
+                  type="number"
+                  value={
+                    active[f.key] === null || active[f.key] === undefined
+                      ? ""
+                      : String(active[f.key])
+                  }
+                  onChange={(e) => updateField(f.key, e.target.value)}
+                  placeholder={f.unit}
+                  className="mt-1 rounded-xl border-[var(--border)] bg-white"
+                />
+              </div>
+            ))}
+            <div>
+              <Label htmlFor="conditions" className="text-[#1abc9c]">
+                Conditions (comma-separated)
               </Label>
               <Input
-                id={f.key}
-                type="number"
-                value={
-                  active[f.key] === null || active[f.key] === undefined
-                    ? ""
-                    : String(active[f.key])
-                }
-                onChange={(e) => updateField(f.key, e.target.value)}
-                placeholder={f.unit}
+                id="conditions"
+                value={active.conditions.join(", ")}
+                onChange={(e) => updateField("conditions", e.target.value)}
+                placeholder="e.g. pre-diabetic, high cholesterol"
                 className="mt-1 rounded-xl border-[var(--border)] bg-white"
               />
             </div>
-          ))}
-          <div>
-            <Label htmlFor="conditions" className="text-[#1abc9c]">
-              Conditions (comma-separated)
-            </Label>
-            <Input
-              id="conditions"
-              value={active.conditions.join(", ")}
-              onChange={(e) => updateField("conditions", e.target.value)}
-              placeholder="e.g. pre-diabetic, high cholesterol"
-              className="mt-1 rounded-xl border-[var(--border)] bg-white"
-            />
-          </div>
-          <Button
-            onClick={onSave}
-            className="w-full rounded-full bg-[#e74c3c] text-white shadow-md hover:bg-[#c0392b]"
-          >
-            Save Health Profile
-          </Button>
-        </CardContent>
-      </Card>
+
+            {message && (
+              <p
+                className={`text-sm font-medium ${
+                  message.includes("saved")
+                    ? "text-[#1abc9c]"
+                    : "text-[#e74c3c]"
+                }`}
+              >
+                {message}
+              </p>
+            )}
+
+            <div className="flex gap-3">
+              <Button
+                onClick={onSave}
+                disabled={saving}
+                className="w-full rounded-full bg-[#e74c3c] text-white shadow-md hover:bg-[#c0392b]"
+              >
+                {saving ? "Saving…" : "Save Health Profile"}
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowEditor(false);
+                  setDraft(null);
+                  setMessage("");
+                }}
+                variant="outline"
+                className="rounded-full border-[#5c7a8c] text-[#5c7a8c] hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
