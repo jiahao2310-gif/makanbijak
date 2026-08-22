@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import openai from "@/lib/openai";
+import { generateWithImage } from "@/lib/llm";
 import { HealthProfile } from "@/lib/types";
+
+const prompt = `Extract health markers from this Malaysian health report image. Return JSON with: blood_glucose_fasting (mmol/L), hba1c (%), total_cholesterol, hdl, ldl, triglycerides (mmol/L), blood_pressure_systolic, blood_pressure_diastolic (mmHg), bmi, weight_kg, height_cm, conditions (array of strings), report_date (YYYY-MM-DD). Use null for missing values.`;
+
+function extractJson(text: string) {
+  const match = text.match(/\{[\s\S]*\}/);
+  return match ? JSON.parse(match[0]) : {};
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,29 +18,8 @@ export async function POST(request: NextRequest) {
 
     const base64 = document.split(",")[1] || document;
 
-    const res = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Extract health markers from this Malaysian health report image. Return JSON with: blood_glucose_fasting (mmol/L), hba1c (%), total_cholesterol, hdl, ldl, triglycerides (mmol/L), blood_pressure_systolic, blood_pressure_diastolic (mmHg), bmi, weight_kg, height_cm, conditions (array of strings), report_date (YYYY-MM-DD). Use null for missing values.`,
-            },
-            {
-              type: "image_url",
-              image_url: { url: `data:image/jpeg;base64,${base64}` },
-            },
-          ],
-        },
-      ],
-      max_tokens: 1200,
-    });
-
-    const text = res.choices[0].message.content || "";
-    const match = text.match(/\{[\s\S]*\}/);
-    const extracted = match ? JSON.parse(match[0]) : {};
+    const text = await generateWithImage(prompt, base64);
+    const extracted = extractJson(text);
 
     const profile: HealthProfile = {
       blood_glucose_fasting: extracted.blood_glucose_fasting ?? null,
