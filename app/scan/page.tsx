@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { FoodItem } from "@/lib/types";
 import { CameraCapture } from "@/components/CameraCapture";
 import { NutritionCard } from "@/components/NutritionCard";
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, Lightbulb } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, ChevronDown, ChevronUp, Lightbulb } from "lucide-react";
 
 interface ScanResult {
   food: FoodItem;
@@ -19,11 +20,49 @@ interface ScanResult {
   food_items: { name: string; confidence: string }[];
 }
 
+interface ScanHistoryItem extends ScanResult {
+  id: string;
+  timestamp: number;
+}
+
+const STORAGE_KEY = "makanbijak_scan_history";
+
+function formatDate(ts: number) {
+  const d = new Date(ts);
+  return d.toLocaleString("en-MY", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function ScanPage() {
   const { profile, loaded } = useHealthProfile();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState("");
+  const [history, setHistory] = useState<ScanHistoryItem[]>([]);
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setHistory(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    } catch {}
+  }, [history]);
+
+  const toggleExpanded = (id: string) => {
+    setExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
 
   const handleCapture = async (base64: string) => {
     setLoading(true);
@@ -36,7 +75,14 @@ export default function ScanPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Scan failed");
+      const item: ScanHistoryItem = {
+        ...data,
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        timestamp: Date.now(),
+      };
       setResult(data);
+      setHistory((prev) => [item, ...prev].slice(0, 20));
+      setExpandedIds((prev) => [item.id, ...prev]);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -110,6 +156,74 @@ export default function ScanPage() {
           </Card>
         </div>
       )}
+
+      <div className="space-y-3">
+        <h3 className="text-lg font-bold text-[#1e3a4c]">Scan History</h3>
+        {history.length === 0 ? (
+          <Card className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm">
+            <CardContent className="p-5 text-center text-sm text-[#5c7a8c]">
+              No scans yet. Snap your first meal to see it here.
+            </CardContent>
+          </Card>
+        ) : (
+          history.map((item) => {
+            const isOpen = expandedIds.includes(item.id);
+            return (
+              <Card
+                key={item.id}
+                className="overflow-hidden rounded-2xl border-0 bg-white shadow-sm"
+              >
+                <CardHeader className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base font-bold text-[#1e3a4c]">
+                        {item.food.name_en || item.food_items?.[0]?.name}
+                      </CardTitle>
+                      <p className="text-xs font-medium text-[#5c7a8c]">
+                        {formatDate(item.timestamp)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => toggleExpanded(item.id)}
+                      className="rounded-full text-[#1abc9c] hover:bg-[#e8f8f5]"
+                    >
+                      {isOpen ? (
+                        <ChevronUp className="h-5 w-5" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5" />
+                      )}
+                    </Button>
+                  </div>
+                </CardHeader>
+                {isOpen && (
+                  <CardContent className="space-y-4 border-t border-[#e8f8f5] p-4">
+                    <NutritionCard food={item.food} />
+                    <div className="space-y-2 text-sm">
+                      <p className="text-[#1e3a4c]">
+                        <strong className="text-[#1abc9c]">Assessment:</strong>{" "}
+                        {item.advice.assessment}
+                      </p>
+                      <p className="flex items-start gap-2 font-medium text-[#e74c3c]">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                        {item.advice.warnings}
+                      </p>
+                      <p className="flex items-start gap-2 font-medium text-[#1abc9c]">
+                        <Lightbulb className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>
+                          <strong>Better choice:</strong>{" "}
+                          {item.advice.better_choice}
+                        </span>
+                      </p>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }
